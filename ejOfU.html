@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>动态跳转页</title>
+</head>
+<body>
+  <h2>🚀 页面加载中...</h2>
+
+  <script>
+    // 解析 URL 参数
+    const urlParams = new URLSearchParams(window.location.search);
+    const p = urlParams.get('p');
+    const swl = urlParams.get('swl');
+
+    console.log("p参数：", p);
+    console.log("swl参数：", swl);
+
+    // 你可以根据 p 或 swl 做跳转或加载不同内容
+    if (p && swl) {
+      document.body.innerHTML = `<p>欢迎访问，参数为：p=${p}，swl=${swl}</p>`;
+    } else {
+      document.body.innerHTML = '<p>❌ 缺少必要参数</p>';
+    }
+  </script>
+</body>
+</html>
