@@ -1,27 +1,209 @@
-<!DOCTYPE html>
-<html lang="zh">
 <head>
-  <meta charset="UTF-8">
-  <title>动态跳转页</title>
+  <meta name="wechat-enable-text-zoom-em" content="true">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="color-scheme" content="light dark">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0,viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no">
+  <link rel="shortcut icon" href="https://res.wx.qq.com/a/wx_fed/assets/res/NTI4MWU5.ico">
+  <link rel="stylesheet" href="https://api.domain001.xyz/static/css/common.css">
+  <link rel="stylesheet" href="https://api.domain001.xyz/static/css/bootstrap.min.css">
+  <style>
+   body {
+  padding-top: 45px;
+   }
+
+  .wechat-overlay {
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(135deg, #fdfbfb, #ebedee);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .wechat-box {
+    background: #fff;
+    border-radius: 16px;
+    padding: 30px 25px;
+    width: 88%;
+    max-width: 360px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+    text-align: center;
+    animation: fadeIn 0.4s ease;
+  }
+  .wechat-box img {
+    width: 60px;
+    height: 60px;
+    margin-bottom: 20px;
+  }
+  .wechat-box h2 {
+    font-size: 18px;
+    color: #333;
+    margin-bottom: 10px;
+  }
+  .wechat-box p {
+    font-size: 14px;
+    color: #666;
+    line-height: 1.6;
+  }
+  .wechat-box .btn {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background: #07c160;
+    color: #fff;
+    border: none;
+    border-radius: 100px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  @keyframes fadeIn {
+    from {opacity: 0; transform: scale(0.95);}
+    to {opacity: 1; transform: scale(1);}
+  }
+  </style>
 </head>
+
 <body>
-  <h2>🚀 页面加载中...</h2>
+  <div id="content">页面加载中...</div>
 
-  <script>
-    // 解析 URL 参数
-    const urlParams = new URLSearchParams(window.location.search);
-    const p = urlParams.get('p');
-    const swl = urlParams.get('swl');
+<script>
+  // 获取 kid 参数
+  let kid = new URLSearchParams(location.search).get("kid");
 
-    console.log("p参数：", p);
-    console.log("swl参数：", swl);
+if (!kid) {
+  const now = new Date().toLocaleString(); // 获取当前时间字符串
+  document.getElementById("content").innerHTML = `<p>❌  ${now}）</p>`;
+  throw new Error(`时间：${now}`);
+}
 
-    // 你可以根据 p 或 swl 做跳转或加载不同内容
-    if (p && swl) {
-      document.body.innerHTML = `<p>欢迎访问，参数为：p=${p}，swl=${swl}</p>`;
-    } else {
-      document.body.innerHTML = '<p>❌ 缺少必要参数</p>';
-    }
-  </script>
+  fetch(`https://api.domain001.xyz/common/kf/view.php?kid=${kid}`)
+    .then(res => res.json())
+    .then(res => {
+      if (res.code !== 200) {
+        document.getElementById("content").innerHTML = `<p>${res.msg}</p>`;
+        return;
+      }
+
+  // 🔐 解密 data 字段
+  let rawJson = '';
+  try {
+    rawJson = JSON.parse(atob(res.data));
+  } catch (e) {
+    document.getElementById("content").innerHTML = '<p>数据解析失败</p>';
+    return;
+  }
+
+  const kf = rawJson.kf_info;
+  const qrcode = rawJson.qrcode;
+
+  let html = '';
+
+      if (rawJson.wechat_restrict) {
+        document.getElementById("content").innerHTML = `
+<div class="wechat-overlay">
+  <div class="wechat-box">
+    <img src="https://res.wx.qq.com/a/wx_fed/assets/res/NTI4MWU5.ico" alt="WeChat" />
+    <h2>请使用微信打开</h2>
+    <p>该页面仅支持微信内访问<br>请复制链接到微信中打开查看</p>
+    <button class="btn" onclick="copyUrl()">复制链接</button>
+  </div>
+</div>
+        `;
+        return;
+      }
+
+      document.title = kf.kf_title;
+
+      if (kf.kf_safety == 1) {
+        html += '<div id="kf_safety"><div class="icon"></div><div class="text">二维码已通过安全验证</div></div>';
+      }
+
+      if (kf.kf_beizhu) {
+        html += `<div id="kf_beizhu">${kf.kf_beizhu}</div>`;
+      }
+
+      html += '<div id="kfzm_qrcode">';
+      if (kf.link_jump_type == 3) {
+        html += `<a href="${qrcode.jump_link}" target="_blank"><img src="${qrcode.zm_qrcode}" /></a>`;
+      } else {
+        html += `<img src="${qrcode.zm_qrcode}" />`;
+      }
+      html += '</div>';
+
+if (qrcode.zm_desc) {
+  html += `<p id="zm_desc" style="text-align: center; color: #666; font-size: 20px; margin-top: 10px;">${qrcode.zm_desc}</p>`;
+}
+      if (kf.link_jump_type == 1) {
+        setTimeout(() => {
+          window.open(qrcode.jump_link, '_blank');
+        }, (kf.auto_jump_time || 3) * 1000);
+        html += `<p style="color:#999;font-size:14px;">正在跳转中，请稍候…</p>`;
+      } else if (kf.link_jump_type == 2) {
+        // html += `<p style="color:#999;font-size:14px;">请长按识别二维码进入页面</p>`;
+      } else if (kf.link_jump_type == 4) {
+        html += `
+          <div id="jumpConfirmBox" style="display: none;">
+            <div class="confirm-inner">
+              <p>这是你成功的第一步，现在就出发！</p>
+              <a href="${qrcode.jump_link}" target="_blank">立刻开启专属体验 🚀</a>
+            </div>
+          </div>
+          <style>
+            #jumpConfirmBox {
+              position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+              background: rgba(0, 0, 0, 0.5);
+              display: flex; align-items: center; justify-content: center;
+              z-index: 9999;
+              animation: shake 0.4s ease-in-out infinite alternate;
+            }
+            .confirm-inner {
+              background: #fff; padding: 20px 25px; border-radius: 12px;
+              text-align: center; animation: shake 0.4s ease-in-out infinite alternate;
+            }
+            .confirm-inner p { margin: 0 0 15px; font-size: 16px; color: #333; }
+            .confirm-inner a {
+              display: inline-block; padding: 10px 25px;
+              background: linear-gradient(135deg, #ff5fbd, #ff84d7, #ffa5ea);
+              color: #fff; border-radius: 30px; text-decoration: none;
+              font-size: 16px; font-weight: bold;
+              box-shadow: 0 0 12px rgba(255, 105, 180, 0.5);
+              animation: shine 1.5s infinite;
+            }
+            @keyframes shine {
+              0% { box-shadow: 0 0 8px #ff5fbd; }
+              50% { box-shadow: 0 0 18px #ffa5ea; }
+              100% { box-shadow: 0 0 8px #ff5fbd; }
+            }
+            @keyframes shake {
+              0% { transform: translateX(-2px); }
+              100% { transform: translateX(2px); }
+            }
+          </style>
+        `;
+        setTimeout(() => {
+          const box = document.getElementById("jumpConfirmBox");
+          if (box) box.style.display = "flex";
+        }, 4000);
+      }
+
+      document.getElementById("content").innerHTML = html;
+    })
+    .catch(err => {
+      document.getElementById("content").innerHTML = `<p>请求失败：${err.message}</p>`;
+    });
+
+  function copyUrl() {
+    const input = document.createElement("input");
+    input.value = window.location.href;
+    document.body.appendChild(input);
+    input.select();
+    document.execCommand("copy");
+    document.body.removeChild(input);
+    alert("链接已复制，请粘贴到微信中打开");
+  }
+</script>
+
 </body>
 </html>
