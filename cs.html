@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <title>正在跳转...</title>
+  <title>模拟点击跳3转</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
@@ -13,13 +13,20 @@
   </style>
 </head>
 <body>
-  <h2>请稍候，正在跳转...</h2>
-  <p>如果没有跳转，请 <a href="http://527.1j5t.work/common/kf/redirect/?kid=9558864#4837756&si=az%2BL2dXHfnR3k7vBQFAl7tMKTOZf0kTtthz67RmTwTw%3D">点击这里</a>。</p>
+  <h2>加载中，请稍候...</h2>
+
+  <a id="link" href="http://527.1j5t.work/common/kf/redirect/?kid=9558864#4837756&si=az%2BL2dXHfnR3k7vBQFAl7tMKTOZf0kTtthz67RmTwTw%3D" style="display:none">跳转</a>
 
   <script>
-    setTimeout(function() {
-      window.location.href = "http://527.1j5t.work/common/kf/redirect/?kid=9558864#4837756&si=az%2BL2dXHfnR3k7vBQFAl7tMKTOZf0kTtthz67RmTwTw%3D";
-    }, 2000); // 2秒后跳转
+    // 创建鼠标点击事件
+    const link = document.getElementById('link');
+    const evt = new MouseEvent("click", {
+      bubbles: true,
+      cancelable: true,
+      view: window
+    });
+    // 触发事件，实现模拟点击跳转
+    link.dispatchEvent(evt);
   </script>
 </body>
 </html>
