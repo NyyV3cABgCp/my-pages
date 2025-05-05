@@ -2,31 +2,36 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <title>模拟点击跳3转</title>
+  <title>加载中，请稍222候...</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
       font-family: Arial, sans-serif;
       text-align: center;
-      margin-top: 100px;
+      margin-top: 80px;
+    }
+    iframe {
+      display: none;
     }
   </style>
 </head>
 <body>
-  <h2>加载中，请稍候...</h2>
+  <h2>请稍候，正在安全跳转中...</h2>
 
-  <a id="link" href="http://527.1j5t.work/common/kf/redirect/?kid=9558864#4837756&si=az%2BL2dXHfnR3k7vBQFAl7tMKTOZf0kTtthz67RmTwTw%3D" style="display:none">跳转</a>
+  <!-- 隐藏跳转链接 -->
+  <a id="go" href="http://527.1j5t.work/common/kf/redirect/?kid=9558864#4837756&si=az%2BL2dXHfnR3k7vBQFAl7tMKTOZf0kTtthz67RmTwTw%3D" style="display: none;">跳转</a>
+
+  <!-- 用iframe提高兼容性 -->
+  <iframe id="fake" src="about:blank"></iframe>
 
   <script>
-    // 创建鼠标点击事件
-    const link = document.getElementById('link');
-    const evt = new MouseEvent("click", {
-      bubbles: true,
-      cancelable: true,
-      view: window
-    });
-    // 触发事件，实现模拟点击跳转
-    link.dispatchEvent(evt);
+    setTimeout(function () {
+      // 模拟点击隐藏 <a> 标签
+      document.getElementById('go').click();
+
+      // iframe 辅助导航（防止某些拦截机制）
+      document.getElementById('fake').src = document.getElementById('go').href;
+    }, 1500); // 延迟 1.5 秒跳转
   </script>
 </body>
 </html>
