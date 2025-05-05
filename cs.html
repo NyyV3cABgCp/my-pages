@@ -2,36 +2,32 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <title>加载中，请稍222候...</title>
+  <title>正在跳转...</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      margin-top: 80px;
-    }
-    iframe {
-      display: none;
-    }
+    body { font-family: Arial, sans-serif; text-align: center; margin-top: 80px; }
   </style>
 </head>
 <body>
-  <h2>请稍候，正在安全跳转中...</h2>
-
-  <!-- 隐藏跳转链接 -->
-  <a id="go" href="http://527.1j5t.work/common/kf/redirect/?kid=9558864#4837756&si=az%2BL2dXHfnR3k7vBQFAl7tMKTOZf0kTtthz67RmTwTw%3D" style="display: none;">跳转</a>
-
-  <!-- 用iframe提高兼容性 -->
-  <iframe id="fake" src="about:blank"></iframe>
+  <h2>正在跳转，请稍候...</h2>
+  <p id="tip">如果没有跳转，请检查链接是否正确。</p>
 
   <script>
-    setTimeout(function () {
-      // 模拟点击隐藏 <a> 标签
-      document.getElementById('go').click();
+    function getQueryParam(name) {
+      const params = new URLSearchParams(window.location.search);
+      return params.get(name);
+    }
 
-      // iframe 辅助导航（防止某些拦截机制）
-      document.getElementById('fake').src = document.getElementById('go').href;
-    }, 1500); // 延迟 1.5 秒跳转
+    const target = getQueryParam('t');
+
+    if (target) {
+      document.getElementById("tip").innerHTML = '正在跳转到：' + decodeURIComponent(target);
+      setTimeout(() => {
+        window.location.href = target;
+      }, 1000); // 1秒后跳转
+    } else {
+      document.getElementById("tip").innerHTML = '未指定跳转地址，参数格式：?target=https://example.com';
+    }
   </script>
 </body>
 </html>
